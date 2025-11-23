@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p id="a">1</p>
+    <button id="b">click me to add 1</button>
+    <button id="c">click me to subtarct 1</button>
+    <script>
+        document.getElementById('b').addEventListener('click', function() {
+            let p = document.getElementById('a');
+            let num = parseInt(p.textContent, 10);
+            num += 1;
+            p.textContent = num;
+        });
+        document.getElementById('c').addEventListener('click', function() {
+            let p = document.getElementById('a');
+            let num = parseInt(p.textContent, 10);
+            num -= 1;
+            p.textContent = num;
+        });
+    </script>
+</body>
+</html>

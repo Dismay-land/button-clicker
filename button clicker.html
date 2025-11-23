@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>button clicker (alpha)</title>
+</head>
+
+<body>
+    <h1>button clicker (alpha)</h1>
+    <div>
+        <input id="myInput" type="number" value="1" min="0" pattern="[0-9]" placeholder="use to level up" />
+        <button id="ok">&larr;level up that many times</button>
+        <button id="myButton">0</button>
+        <p>click = + [how many levels you have] points!</p>
+    </div>
+    <div>
+        <p id="levelDisplay">Level: 1</p>
+    </div>
+    <p id="cost">cost for next level: 10</p>
+    <script>
+        let score = 0;
+        let level = 1;
+
+        const button = document.getElementById("myButton");
+        const levelBtn = document.getElementById("ok");
+        const input = document.getElementById("myInput");
+        const display = document.getElementById("levelDisplay");
+        const costDisplay = document.getElementById("cost");
+
+        button.onclick = function () {
+            score += level;
+            button.textContent = score;
+        };
+        input.oninput = function () {
+                let amount = parseInt(input.value, 10) || 1;   // default = 1
+                let cost = level * amount * 10;
+                costDisplay.textContent = "Cost for next level: " + cost;
+        };
+        levelBtn.onclick = function () {
+
+            let amount = parseInt(input.value, 10);   // how many levels player wants
+            let cost = level * amount * 10;           // price calculation
+
+            if (score >= cost) {
+                score -= cost;
+                level += amount;
+
+                button.textContent = score;
+                display.textContent = "Level: " + level;
+                costDisplay.textContent = "Cost for next level: " + (level * amount * 10);
+            }
+        };
+
+
+    </script>
+</body>
+
+</html>
