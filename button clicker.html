@@ -19,24 +19,48 @@
         <p id="levelDisplay">Level: 1</p>
     </div>
     <p id="cost">cost for next level: 10</p>
+    <button id="resetBtn">RESET</button>
     <script>
-        let score = 0;
-        let level = 1;
+        let score = Number(localStorage.getItem("score")) || 0;
+        let level = Number(localStorage.getItem("level")) || 1;
+
+
 
         const button = document.getElementById("myButton");
         const levelBtn = document.getElementById("ok");
         const input = document.getElementById("myInput");
         const display = document.getElementById("levelDisplay");
         const costDisplay = document.getElementById("cost");
+        const resetBtn = document.getElementById("resetBtn");
+        resetBtn.onclick = function () {
+            if (!confirm("Are you SURE you want to reset?")) return;
 
+            score = 0;
+            level = 1;
+
+            button.textContent = score;
+            display.textContent = "Level: " + level;
+
+            let amount = parseInt(input.value, 10) || 1;
+            costDisplay.textContent = "Cost for next level: " + (level * amount * 10);
+
+            localStorage.setItem("score", score);
+            localStorage.setItem("level", level);
+        };
+
+
+        button.textContent = score;                 // update score display
+
+        display.textContent = "Level: " + level;    // update level display
         button.onclick = function () {
             score += level;
             button.textContent = score;
+            localStorage.setItem("score", score);
         };
         input.oninput = function () {
-                let amount = parseInt(input.value, 10) || 1;   // default = 1
-                let cost = level * amount * 10;
-                costDisplay.textContent = "Cost for next level: " + cost;
+            let amount = parseInt(input.value, 10) || 1;   // default = 1
+            let cost = level * amount * 10;
+            costDisplay.textContent = "Cost for next level: " + cost;
         };
         levelBtn.onclick = function () {
 
@@ -49,10 +73,13 @@
 
                 button.textContent = score;
                 display.textContent = "Level: " + level;
-                costDisplay.textContent = "Cost for next level: " + (level * amount * 10);
+                let nextAmount = parseInt(input.value, 10) || 1;
+                let nextCost = level * nextAmount * 10;
+                costDisplay.textContent = "Cost for next level: " + nextCost;
+                localStorage.setItem("score", score);
+                localStorage.setItem("level", level);
             }
         };
-
 
     </script>
 </body>
