@@ -26,8 +26,6 @@
         let score = Number(localStorage.getItem("score")) || 0;
         let level = Number(localStorage.getItem("level")) || 1;
 
-
-
         const button = document.getElementById("myButton");
         const levelBtn = document.getElementById("ok");
         const input = document.getElementById("myInput");
@@ -35,6 +33,7 @@
         const costDisplay = document.getElementById("cost");
         const resetBtn = document.getElementById("resetBtn");
         const saveBtn = document.getElementById("save");
+        
         resetBtn.onclick = function () {
             if (!confirm("Are you SURE you want to reset?")) return;
 
@@ -55,7 +54,7 @@
             document.getElementById("savetxt").textContent = "Game Saved!";
             localStorage.setItem("score", score);
             localStorage.setItem("level", level);
-            setTimeout(afterPause, 1000); // 3000 milliseconds = 3 seconds
+            setTimeout(afterPause, 1000); // 1000 milliseconds = 1 second
             function afterPause() {
                 document.getElementById("savetxt").textContent = "";
             }
@@ -66,7 +65,6 @@
         button.onclick = function () {
             score += level;
             button.textContent = score;
-            localStorage.setItem("score", score);
         };
         input.oninput = function () {
             let amount = parseInt(input.value, 10) || 1;   // default = 1
@@ -87,12 +85,9 @@
                 let nextAmount = parseInt(input.value, 10) || 1;
                 let nextCost = level * nextAmount * 10;
                 costDisplay.textContent = "Cost for next level: " + nextCost;
-                localStorage.setItem("score", score);
-                localStorage.setItem("level", level);
             }
         };
-
+        costDisplay.textContent = "Cost for next level: " + (level * 10);
     </script>
 </body>
-
 </html>
