@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>button clicker (alpha)</title>
+    <title>button clicker (beta)</title>
 </head>
 
 <body>
-    <h1>button clicker (alpha)</h1>
+    <h1>button clicker (beta)</h1>
     <div>
-        <input id="myInput" type="number" value="1" min="0" pattern="[0-9]" placeholder="use to level up" />
+        <input id="myInput" type="number" value="1" min="0" pattern="[1-9]" placeholder="use to level up" />
         <button id="ok">&larr;level up that many times</button>
         <button id="myButton">0</button>
         <p>click = + [how many levels you have] points!</p>
@@ -22,10 +22,10 @@
     <button id="resetBtn">RESET</button>
     <button id="save">Save Game</button>
     <p id="savetxt"></p>
+
     <!-- Source - https://stackoverflow.com/a/3926750
     Posted by hairbo, modified by community. See post 'Timeline' for change history
     Retrieved 2025-11-29, License - CC BY-SA 3.0 -->
-
     <noscript>
         <style type="text/css">
             .pagecontainer {
@@ -33,14 +33,90 @@
             }
         </style>
         <div class="noscriptmsg">
-            javascript is not supported by your browser or is disabled. note that the game does not support mobile devices.
+            javascript is not supported by your browser or is disabled. note that the game does not support mobile
+            devices.
             <p>ERROR CODE: SCRIPT_NOT_SUPPORTED</p>
         </div>
     </noscript>
+    <!--end of source-->
+    <h2>UPGRADES!!!</h2>
+    <p>(tip: hover your mouse pointer over a buttton for the details of the upgrade)</p>
+    <button id="clicker" title="each auto-cliker clicks 1 point per second">auto-clicker (500 points per
+        clicker)</button>
+    <p id="clickertxt">you have 0 auto-clickers</p>
 
+    <button id="genBtn" title="each genrator produces 5 points per second">Generator (1000 points)</button>
+    <p id="genTxt">You have 0 generators</p>
+
+    <button id="facBtn" title="each factory makes 25 points per second">Factory (5000 points)</button>
+    <p id="facTxt">You have 0 factories</p>
+
+    <button id="reactBtn" title="each Quantum Reactor fuses 100 points per second">Quantum Reactor (25000
+        points)</button>
+    <p id="reactTxt">You have 0 reactors</p>
+
+    <button id="grandma"
+        title="to remember her loss, each grandma bakes 1 million points per second... she shall not be forgotten">RIP
+        Grandma... (10 million points)</button>
+    <p id="grandmatxt">You have 0 Grandmas</p>
+
+    <style>
+        #grandma {
+            box-shadow: 0 0 12px 4px rgba(150, 80, 255, 0.4);
+            border: 1px solid rgb(180, 130, 255);
+            transition: 1s;
+        }
+
+        #grandma:hover {
+            box-shadow: 0 0 20px 6px rgba(180, 120, 255, 0.7);
+        }
+    </style>
+
+    <h3>achivements (scroll down)</h3>
+    <p id="click">???</p>
+    <p id="100clk">???</p>
+    <p id="1000clk">???</p>
+    <p id="1000000clk">???</p>
+    <p id="1auto">???</p>
+    <p id="10auto">???</p>
+    <p id="100auto">???</p>
+    <p id="1gen">???</p>
+    <p id="10gen">???</p>
+    <p id="100gen">???</p>
+    <p id="1fac">???</p>
+    <p id="10fac">???</p>
+    <p id="100fac">???</p>
+    <p id="1reactor">???</p>
+    <p id="10reactor">???</p>
+    <p id="100reactor">???</p>
+    <p id="1grandma">???</p>
+    <p id="10grandma">???</p>
+    <p id="100grandma">???</p>
     <script>
         let score = Number(localStorage.getItem("score")) || 0;
-        let level = Number(localStorage.getItem("level")) || 1;
+        let clicks = Number(localStorage.getItem("clicks")) || 0;
+        let level = parseInt(localStorage.getItem("level")) || 1;
+        let auto = Number(localStorage.getItem("auto")) || 0;
+        let autoCost = Number(localStorage.getItem("autoCost")) || 500;
+        let autoActive = false;
+        let generators = Number(localStorage.getItem("generators")) || 0;
+        let generatorCost = Number(localStorage.getItem("generatorCost")) || 1000;
+        let factories = Number(localStorage.getItem("factories")) || 0;
+        let factoryCost = Number(localStorage.getItem("factoryCost")) || 5000;
+        let reactors = Number(localStorage.getItem("reactors")) || 0;
+        let reactorCost = Number(localStorage.getItem("reactorCost")) || 25000;
+        let grandmas = Number(localStorage.getItem("grandmas")) || 0;
+        let grandmaCost = Number(localStorage.getItem("grandmaCost")) || 10000000;
+        let autoBoost = 0; // reserved for future upgrades
+        // Prevent NaN bug from breaking game
+        if (isNaN(score)) score = 0;
+        if (isNaN(level)) level = 1;
+        if (isNaN(auto)) auto = 0;
+        if (isNaN(generators)) generators = 0;
+        if (isNaN(factories)) factories = 0;
+        if (isNaN(reactors)) reactors = 0;
+        if (isNaN(grandmas)) grandmas = 0;
+
 
         const button = document.getElementById("myButton");
         const levelBtn = document.getElementById("ok");
@@ -49,48 +125,162 @@
         const costDisplay = document.getElementById("cost");
         const resetBtn = document.getElementById("resetBtn");
         const saveBtn = document.getElementById("save");
+        const buyAuto = document.getElementById("clicker");
+        const autoInfo = document.getElementById("clickertxt");
+        const genBtn = document.getElementById("genBtn");
+        const genTxt = document.getElementById("genTxt");
+        const facBtn = document.getElementById("facBtn");
+        const facTxt = document.getElementById("facTxt");
+        const reactBtn = document.getElementById("reactBtn");
+        const reactTxt = document.getElementById("reactTxt");
+        const grandmaBtn = document.getElementById("grandma");
+        const grandmaTxt = document.getElementById("grandmatxt");
+        let amount = parseInt(input.value, 10) || 1;
+        costDisplay.textContent = "Cost for next level: " + (level * amount * 100);
+        button.textContent = score;
+        display.textContent = "Level: " + level;
+        button.textContent = score;
 
-        resetBtn.onclick = function () {
-            if (!confirm("Are you SURE you want to reset?")) return;
+        buyAuto.textContent = "Auto-clicker (" + autoCost + " points)";
+        autoInfo.textContent = "You have " + auto + " auto-clickers";
+        genBtn.textContent = "Generator (" + generatorCost + " points)";
+        facBtn.textContent = "Factory (" + factoryCost + " points)";
+        reactBtn.textContent = "Quantum Reactor (" + reactorCost + " points)";
+        genTxt.textContent = "You have " + generators + " generators";
+        facTxt.textContent = "You have " + factories + " factories";
+        reactTxt.textContent = "You have " + reactors + " reactors";
+        grandmaBtn.textContent = "RIP Grandma... (" + grandmaCost + " points)";
+        grandmaTxt.textContent = "You have " + grandmas + " Grandmas";
 
-            score = 0;
-            level = 1;
+        grandmaBtn.onclick = function () {
+            if (score >= grandmaCost) {
+                score -= grandmaCost;
+                grandmas++;
 
-            button.textContent = score;
-            display.textContent = "Level: " + level;
+                grandmaCost = Math.floor(grandmaCost * 1.75);
 
-            let amount = parseInt(input.value, 10) || 1;
-            costDisplay.textContent = "Cost for next level: " + (level * amount * 10);
+                localStorage.setItem("score", score);
+                localStorage.setItem("grandmas", grandmas);
+                localStorage.setItem("grandmaCost", grandmaCost);
 
-            localStorage.setItem("score", score);
-            localStorage.setItem("level", level);
+                button.textContent = score;
+                grandmaBtn.textContent = "RIP Grandma... (" + grandmaCost + " points)";
+                grandmaTxt.textContent = "You have " + grandmas + " Grandmas";
+                checkAchivements();
+            }
+        };
+
+        genBtn.onclick = function () {
+            if (score >= generatorCost) {
+                score -= generatorCost;
+                generators++;
+
+                generatorCost = Math.floor(generatorCost * 1.5);
+
+                localStorage.setItem("score", score);
+                localStorage.setItem("generators", generators);
+                localStorage.setItem("generatorCost", generatorCost);
+
+                button.textContent = score;
+                genBtn.textContent = "Generator (" + generatorCost + " points)";
+                genTxt.textContent = "You have " + generators + " generators";
+                checkAchivements();
+            }
+        };
+
+        facBtn.onclick = function () {
+            if (score >= factoryCost) {
+                score -= factoryCost;
+                factories++;
+
+                factoryCost = Math.floor(factoryCost * 1.6);
+
+                localStorage.setItem("score", score);
+                localStorage.setItem("factories", factories);
+                localStorage.setItem("factoryCost", factoryCost);
+
+                button.textContent = score;
+                facBtn.textContent = "Factory (" + factoryCost + " points)";
+                facTxt.textContent = "You have " + factories + " factories";
+                checkAchivements();
+            }
+        };
+        reactBtn.onclick = function () {
+            if (score >= reactorCost) {
+                score -= reactorCost;
+                reactors++;
+
+                reactorCost = Math.floor(reactorCost * 1.7);
+
+                localStorage.setItem("score", score);
+                localStorage.setItem("reactors", reactors);
+                localStorage.setItem("reactorCost", reactorCost);
+
+                button.textContent = score;
+                reactBtn.textContent = "Quantum Reactor (" + reactorCost + " points)";
+                reactTxt.textContent = "You have " + reactors + " reactors";
+                checkAchivements();
+            }
+        };
+        buyAuto.onclick = function () {
+            if (score >= autoCost) {
+                score -= autoCost;
+                auto++;
+                autoCost = Math.floor(autoCost * 1.75);
+
+                localStorage.setItem("score", score);
+                localStorage.setItem("auto", auto);
+                localStorage.setItem("autoCost", autoCost);
+
+                button.textContent = score;
+                buyAuto.textContent = "Auto-clicker (" + autoCost + " points)";
+                autoInfo.textContent = "You have " + auto + " auto-clickers";
+
+                if (!autoActive) startAutoClicker();  // <-- now works
+            }
+
         };
 
         saveBtn.onclick = function () {
             document.getElementById("savetxt").textContent = "Game Saved!";
             localStorage.setItem("score", score);
             localStorage.setItem("level", level);
+            localStorage.setItem("auto", auto);
+            localStorage.setItem("autoCost", autoCost);
+            localStorage.setItem("generators", generators);
+            localStorage.setItem("generatorCost", generatorCost);
+            localStorage.setItem("factories", factories);
+            localStorage.setItem("factoryCost", factoryCost);
+            localStorage.setItem("reactors", reactors);
+            localStorage.setItem("reactorCost", reactorCost);
+            localStorage.setItem("grandmas", grandmas);
+            localStorage.setItem("grandmaCost", grandmaCost);
             setTimeout(afterPause, 1000); // 1000 milliseconds = 1 second
             function afterPause() {
                 document.getElementById("savetxt").textContent = "";
             }
         };
-        button.textContent = score;                 // update score display
 
-        display.textContent = "Level: " + level;    // update level display
         button.onclick = function () {
             score += level;
+            clicks += 1;
             button.textContent = score;
+            localStorage.setItem("score", score);
+            localStorage.setItem("clicks", clicks);
+            checkAchivements();
         };
+
         input.oninput = function () {
-            let amount = parseInt(input.value, 10) || 1;   // default = 1
-            let cost = level * amount * 10;
+            amount = parseInt(input.value, 10) || 1; // default = 1
+            let cost = level * amount * 100;
             costDisplay.textContent = "Cost for next level: " + cost;
+            checkAchivements();
         };
+
         levelBtn.onclick = function () {
 
             let amount = parseInt(input.value, 10);   // how many levels player wants
-            let cost = level * amount * 10;           // price calculation
+            let cost = level * amount * 100;           // price calculation
 
             if (score >= cost) {
                 score -= cost;
@@ -99,11 +289,180 @@
                 button.textContent = score;
                 display.textContent = "Level: " + level;
                 let nextAmount = parseInt(input.value, 10) || 1;
-                let nextCost = level * nextAmount * 10;
+                let nextCost = level * nextAmount * 100; // controll cost display after level up
                 costDisplay.textContent = "Cost for next level: " + nextCost;
+                localStorage.setItem("score", score);
+                localStorage.setItem("level", level);
+                checkAchivements();
             }
         };
-        costDisplay.textContent = "Cost for next level: " + (level * 10);
+
+        resetBtn.onclick = function () {
+            if (!confirm("Are you SURE you want to reset?")) return;
+
+            score = 0;
+            level = 1;
+            auto = 0;
+            autoCost = 500;
+            generators = 0;
+            generatorCost = 1000;
+            factories = 0;
+            factoryCost = 5000;
+            reactors = 0;
+            reactorCost = 25000;
+            grandmas = 0;
+            grandmaCost = 10000000;
+            clicks = 0;
+
+            localStorage.clear();
+
+            button.textContent = score;
+            display.textContent = "Level: " + level;
+
+            let amount = parseInt(input.value, 10) || 1;
+            costDisplay.textContent = "Cost for next level: " + (level * amount * 100);
+
+            buyAuto.textContent = "Auto-clicker (" + autoCost + " points)";
+            autoInfo.textContent = "You have " + auto + " auto-clickers";
+            genBtn.textContent = "Generator (" + generatorCost + " points)";
+            genTxt.textContent = "You have " + generators + " generators";
+            facBtn.textContent = "Factory (" + factoryCost + " points)";
+            facTxt.textContent = "You have " + factories + " factories";
+            reactBtn.textContent = "Quantum Reactor " + reactorCost + " points";
+            reactTxt.textContent = "You have " + reactors + " reactors";
+            grandmaBtn.textContent = "RIP Grandma... (" + grandmaCost + " points)";
+            grandmaTxt.textContent = "You have " + grandmas + " Grandmas";
+
+
+        };
+
+        function startAutoClicker() {
+            if (autoActive) return; // don't start twice
+            autoActive = true; // turn system on correctly
+            setInterval(() => {
+                let totalGain = 0;
+
+                totalGain += (auto + autoBoost) * 1;
+                totalGain += generators * 5;
+                totalGain += factories * 25;
+                totalGain += reactors * 100;
+                totalGain += grandmas * 1000000;
+
+                if (totalGain > 0) {
+                    score += totalGain;
+                    button.textContent = score;
+                    localStorage.setItem("score", score);
+                }
+            }, 1000);
+        }
+        function checkAchivements() {
+            if (clicks >= 1) {
+                document.getElementById("click").textContent = "1 click down...";
+            }
+            if (clicks >= 100) {
+                document.getElementById("100clk").textContent = "100 clicks!";
+            }
+            if (clicks >= 1000) {
+                document.getElementById("1000clk").textContent = "what comes after 999? 1000!!!!!!!!!!!!!!!";
+            }
+            if (clicks >= 1000000) {
+                document.getElementById("1000000clk").textContent = "click-aholic";
+            }
+            if (auto >= 1) {
+                document.getElementById("1auto").textContent = "some automating going on";
+            }
+            if (auto >= 10) {
+                document.getElementById("10auto").textContent = "getting serious with the auto-clickers";
+            }
+            if (auto >= 100) {
+                document.getElementById("100auto").textContent = "OH MY LORD";
+            }
+            if (generators >= 1) {
+                document.getElementById("1gen").textContent = "GENERATING TEXT... SUCSESS.";
+            }
+            if (generators >= 10) {
+                document.getElementById("10gen").textContent = "powering up...";
+            }
+            if (generators >= 100) {
+                document.getElementById("100gen").textContent = "ENERGY OVERLOAD!!!";
+            }
+            if (factories >= 1) {
+                document.getElementById("1fac").textContent = "factory is opperational";
+            }
+            if (factories >= 10) {
+                document.getElementById("10fac").textContent = "huge production";
+            }
+            if (factories >= 100) {
+                document.getElementById("100fac").textContent = "earth = factory now";
+            }
+            if (reactors >= 1) {
+                document.getElementById("1reactor").textContent = "quantumized points";
+            }
+            if (reactors >= 10) {
+                document.getElementById("10reactor").textContent = "quantumized points x10";
+            }
+            if (reactors >= 100) {
+                document.getElementById("100reactor").textContent = "quantumized points OVERLOAD!!!";
+            }
+            if (grandmas >= 1) {
+                document.getElementById("1grandma").textContent = "RIP Grandma";
+            }
+            if (grandmas >= 10) {
+                document.getElementById("10grandma").textContent = "Rip Grandma x10";
+            }
+            if (grandmas >= 100) {
+                document.getElementById("100grandma").textContent = "grandma was found in heaven";
+            }
+        };
+        function giveDailyReward() {
+            let today = new Date().toDateString();
+            let lastReward = localStorage.getItem("lastRewardDate");
+
+            if (lastReward !== today) {
+                // Give reward only once per day
+                score += 500;
+
+                // Update UI
+                button.textContent = score;
+
+                // Save
+                localStorage.setItem("score", score);
+                localStorage.setItem("lastRewardDate", today);
+
+                // Show popup
+                showDailyPopup();
+            }
+        }
+        function showDailyPopup() {
+            const pop = document.createElement("div");
+            pop.textContent = "🎁 Daily Reward: +500 Points!";
+            pop.style.position = "fixed";
+            pop.style.top = "20px";
+            pop.style.left = "50%";
+            pop.style.transform = "translateX(-50%)";
+            pop.style.background = "#4CAF50";
+            pop.style.color = "white";
+            pop.style.padding = "15px 25px";
+            pop.style.borderRadius = "12px";
+            pop.style.fontSize = "20px";
+            pop.style.boxShadow = "0 0 15px rgba(0,0,0,0.3)";
+            pop.style.zIndex = "9999";
+            pop.style.opacity = "1";
+            pop.style.transition = "opacity 1s ease";
+
+            document.body.appendChild(pop);
+
+            setTimeout(() => {
+                pop.style.opacity = "0";
+                setTimeout(() => pop.remove(), 1000);
+            }, 2000);
+        }
+
+        if (auto > 0 || generators > 0 || factories > 0 || reactors > 0 || grandmas > 0) {
+            startAutoClicker();
+        }
+        checkAchivements(); // Check achievements on load
+        giveDailyReward(); // Give daily reward if applicable
     </script>
 </body>
 
