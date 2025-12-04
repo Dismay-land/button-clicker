@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>button clicker (beta)</title>
-    <link id="mainCSS" rel="stylesheet" href="btnclk.css">
+    <link id="mainCSS" rel="stylesheet" href="./btnclk.css">
     <style>
         body {
             background-color: rgb(207, 255, 253);
@@ -19,10 +19,73 @@
     <div id="cssError">
         <div class="errBox">
             <h1>⚠️ CSS Failed to Load</h1>
-            <p>The page could not load the stylesheet. Some layout may break.</p>
-            <button id="continueBtn">Continue without CSS</button>
+            <p>The page will not load without the stylesheet. please make sure that you downloaded the css file or is in
+                your desktop.</p>
+            <p>ERROR CODE 404: FILE_NOT_FOUND</p>
+            <button id="continueBtn">atempt to check for CSS</button>
+            <button id="rld" onclick="location.reload();">reload page</button>
+            <button id="dwnld">download full CSS</button>
+            <p id="atmp"></p>
         </div>
     </div>
+
+    <!-- following script controlls button -->
+    <script>
+        const continueBtn = document.getElementById("continueBtn");
+        const atmpText = document.getElementById("atmp");
+        const dwnldBtn = document.getElementById("dwnld");
+        const style = document.getElementById("download");
+        const fallbackCSS = `
+    #css-test-element { width: 10px; }
+
+    #myButton {
+        border-radius: 0 !important;
+        width: auto !important;
+        height: auto !important;
+        padding: 1px 10px !important;
+        font-size: 14px !important;
+        transition: 150ms !important;
+    }
+
+    #myButton:hover {
+        padding: 5px 15px !important;
+        font-size: 19px !important;
+    }
+
+    #myButton:active {
+        padding: 3px 12px !important;
+        font-size: 14px !important;
+        transition: 50ms !important;
+    }
+`;
+
+
+        dwnldBtn.onclick = function () {
+            btn = document.getElementById("continueBtn");
+            const style = document.createElement("style");
+            style.textContent = fallbackCSS;
+            document.head.appendChild(style);
+            btn.textContent = "continiue to page";
+            atmpText.textContent = "✅ CSS applied via internal fallback. please click 'continiue to page' to continiue.";
+        };
+
+        continueBtn.onclick = function () {
+            const link = document.getElementById("mainCSS");
+            link.href = "./btnclk.css?" + new Date().getTime(); // Force reload by appending timestamp
+
+            // Check if CSS loads after a short delay
+            setTimeout(() => {
+                const test = getComputedStyle(document.getElementById("css-test-element")).width;
+                if (test === "10px") {
+                    // CSS loaded successfully
+                    document.getElementById("cssError").style.display = "none";
+                } else {
+                    atmpText.textContent = "⚠️ CSS still failed to load. Please check your file location.";
+                }
+
+            }, 1000); // 1 second delay
+        };
+    </script>
 
     <style>
         /* Hidden by default */
@@ -48,6 +111,20 @@
         }
 
         #continueBtn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        #dwnld {
+            margin-top: 20px;
+            padding: 10px 25px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        #rld {
             margin-top: 20px;
             padding: 10px 25px;
             font-size: 18px;
@@ -532,7 +609,7 @@
     <script>
         document.getElementById("mainCSS").addEventListener("error", function () {
             const err = document.createElement("div");
-            err.textContent = "⚠️ ERROR: btnclk.css failed to load!";
+            err.textContent = "⚠️ ERROR 404: btnclk.css failed to load! currently using temporay fix.";
             err.style.position = "fixed";
             err.style.top = "20px";
             err.style.left = "50%";
@@ -554,7 +631,6 @@
             }, 2500);
         });
     </script>
-
 </body>
 
 </html>
