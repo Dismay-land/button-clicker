@@ -15,6 +15,7 @@
 </head>
 
 <body>
+    <audio id="clickSound" src="./clk.mp3"></audio>
     <div id="css-test-element" style="display:none;"></div>
     <div id="cssError">
         <div class="errBox">
@@ -145,10 +146,12 @@
     </script>
 
     <h1>button clicker (beta)</h1>
+
     <div>
         <input id="myInput" type="number" value="1" min="0" pattern="[1-9]" placeholder="use to level up" />
         <button id="ok">&larr;level up that many times</button>
         <button id="myButton">0</button>
+        <div id="particleContainer"></div>
         <p>click = + [how many levels you have] points!</p>
     </div>
     <div>
@@ -176,6 +179,9 @@
     </noscript>
     <!--end of source-->
     <p id="totclk">total clicks: 0</p>
+    <button id="prestigeBtn" onclick="prestige()">Prestige (Requires 10,000,000,000 (10 billion) points)</button>
+    <div id="prestigeInfo">Prestige Multiplier: x1</div>
+
     <h2>UPGRADES!!!</h2>
     <p>(tip: hover your mouse pointer over a buttton for the details of the upgrade)</p>
     <button id="clicker" title="each auto-cliker clicks 1 point per second">auto-clicker (500 points per
@@ -230,6 +236,14 @@
     <p id="10grandma">???</p>
     <p id="100grandma">???</p>
     <script>
+        // unlock sound play
+        let clickSound = new Audio("clk.mp3");
+        clickSound.volume = 0.4;
+        document.body.addEventListener("mousedown", () => {
+            clickSound.play().catch(() => { });
+        }, { once: true });
+
+        // load stored data
         let score = Number(localStorage.getItem("score")) || 0;
         let clicks = Number(localStorage.getItem("clicks")) || 0;
         let level = parseInt(localStorage.getItem("level")) || 1;
@@ -244,7 +258,11 @@
         let reactorCost = Number(localStorage.getItem("reactorCost")) || 25000;
         let grandmas = Number(localStorage.getItem("grandmas")) || 0;
         let grandmaCost = Number(localStorage.getItem("grandmaCost")) || 10000000;
+        let prestigelvl = Number(localStorage.getItem("prestigeBtn")) || 0;
+        let prestigeMult = Number(localStorage.getItem("prestigeInfo")) || 1;
+        let upgrades = auto + generators + factories + reactors + grandmas
         let autoBoost = 0;
+
         // Prevent NaN bug from breaking game
         if (isNaN(score)) score = 0;
         if (isNaN(level)) level = 1;
@@ -280,7 +298,6 @@
         button.textContent = score;
         display.textContent = "Level: " + level;
         button.textContent = score;
-
         buyAuto.textContent = "Auto-clicker (" + autoCost + " points)";
         autoInfo.textContent = "You have " + auto + " auto-clickers";
         genBtn.textContent = "Generator (" + generatorCost + " points)";
@@ -402,15 +419,23 @@
         };
 
         button.onclick = function () {
-            score += level;
+            clickSound.currentTime = 0;
+            clickSound.play();
+
+            score += level * prestigeMult;
             clicks += 1;
             button.textContent = score;
             localStorage.setItem("score", score);
             localStorage.setItem("clicks", clicks);
             totclk.textContent = "total clicks: " + clicks;
+
+            // spawn particle at mouse position
+            document.addEventListener("click", (e) => {
+                spawnParticle(e.clientX, e.clientY);
+            });
+
             checkAchivements();
         };
-
         input.oninput = function () {
             amount = parseInt(input.value, 10) || 1; // default = 1
             let cost = level * amount * 100;
@@ -603,10 +628,45 @@
         if (auto > 0 || generators > 0 || factories > 0 || reactors > 0 || grandmas > 0) {
             startAutoClicker();
         }
-        checkAchivements(); // Check achievements on load
-        giveDailyReward(); // Give daily reward if applicable
-    </script>
-    <script>
+        
+        function checkOfflineEarnings() {
+            let saved = localStorage.getItem("lastOnline");
+            if (!saved) return;
+
+            let msAway = Date.now() - parseInt(saved);
+            let secondsAway = Math.floor(msAway / 1000);
+
+            // Offline rate = your upgrades + prestige multiplier
+            let offlineRate = (1 + upgrades) * prestigeMult;
+
+            let earned = secondsAway * offlineRate;
+            score += earned;
+
+            alert("You were away for " + secondsAway +
+                "s and earned " + earned + " points!");
+            let mybtn = document.getElementById("myButton").textContent
+            mybtn.textContent += earned
+
+            
+        }
+
+        checkOfflineEarnings();
+        function spawnParticle(x, y, text = "+1") {
+            const p = document.createElement("div");
+            p.classList.add("particle");
+            p.textContent = text;
+
+            p.style.left = x + "px";
+            p.style.top = y + "px";
+
+            //document.getElementById("particle-container").appendChild(p);
+
+            setTimeout(() => p.remove(), 800);
+        }
+
+        function playClickSound() {
+            document.getElementById("clickSound").play();
+        }
         document.getElementById("mainCSS").addEventListener("error", function () {
             const err = document.createElement("div");
             err.textContent = "⚠️ ERROR 404: btnclk.css failed to load! currently using temporay fix.";
@@ -630,7 +690,49 @@
                 setTimeout(() => err.remove(), 1000);
             }, 2500);
         });
+        function calculatePrestigeRequirement() {
+            return 10000 * (prestigeLevel + 1);
+        }
+
+        function prestige() {
+            if (score >= calculatePrestigeRequirement()) {
+
+                prestigeLevel++;
+                prestigeMult = 1 + prestigeLevel * 0.5;  // each prestige = +50%
+
+                // RESET EVERYTHING EXCEPT PRESTIGE
+                score = 0;
+                upgrades = 0;
+
+                updateScore();
+                updatePrestigeUI();
+            }
+        }
+
+        function updatePrestigeUI() {
+            document.getElementById("prestigeInfo").textContent =
+                "Prestige Multiplier: x" + prestigeMult;
+            document.getElementById("prestigeBtn").textContent =
+                "Prestige (Requires " + calculatePrestigeRequirement() + ")";
+        }
+
+        // Modify click function
+        function addPoint() {
+            animateButton();
+            playClickSound();
+            score += (1 + upgrades) * prestigeMult;
+            updateScore();
+        }
+        let lastOnline = Date.now();
+
+        window.addEventListener("beforeunload", () => {
+            localStorage.setItem("lastOnline", Date.now());
+            localStorage.setItem("score", score);
+        });
+        checkAchivements(); // Check achievements on load
+        giveDailyReward(); // Give daily reward if applicable
     </script>
+
 </body>
 
 </html>
