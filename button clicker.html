@@ -28,8 +28,7 @@ thank you for reading this comment, happy viewing (or hacking)!-->
     <div id="cssError">
         <div class="errBox">
             <h1>⚠️ CSS Failed to Load</h1>
-            <p>The page will not load without the stylesheet. please make sure that you downloaded the css file or is in
-                your desktop.</p>
+            <p>The page will not load without the stylesheet. please make sure that you downloaded the css file.</p>
             <p>ERROR CODE 404: FILE_NOT_FOUND</p>
             <button id="continueBtn">atempt to check for CSS</button>
             <button id="rld" onclick="location.reload();">reload page</button>
@@ -138,6 +137,32 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             padding: 10px 25px;
             font-size: 18px;
             cursor: pointer;
+        }
+
+        #soundErrorPopup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        #soundErrorPopup .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+        }
+
+        #soundErrorPopup button {
+            margin-top: 10px;
+            padding: 10px 20px;
         }
     </style>
 
@@ -250,6 +275,9 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         document.body.addEventListener("mousedown", () => {
             clickSound.play().catch(() => { });
         }, { once: true });
+        clickSound.addEventListener("error", () => {
+            showMissingSoundPopup();
+        });
 
         // load stored data
         let score = Number(localStorage.getItem("score")) || 0;
@@ -636,7 +664,7 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         if (auto > 0 || generators > 0 || factories > 0 || reactors > 0 || grandmas > 0) {
             startAutoClicker();
         }
-        
+
         function checkOfflineEarnings() {
             let saved = localStorage.getItem("lastOnline");
             if (!saved) return;
@@ -655,7 +683,7 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             let mybtn = document.getElementById("myButton").textContent
             mybtn.textContent += earned
 
-            
+
         }
 
         checkOfflineEarnings();
@@ -739,6 +767,25 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         });
         checkAchivements(); // Check achievements on load
         giveDailyReward(); // Give daily reward if applicable
+        function showMissingSoundPopup() {
+            const popup = document.createElement("div");
+            popup.id = "soundErrorPopup";
+            popup.innerHTML = `
+        <div class="popup-content">
+            <h2>⚠️ Sound File Missing</h2>
+            <p>The file <b>clk.mp3</b> could not be loaded.</p>
+            <p>sounds will NOT work if tranfered by USB or if sound is not dowloaded</p>
+            <button id="closeSoundPopup">OK</button>
+        </div>
+    `;
+
+            document.body.appendChild(popup);
+
+            document.getElementById("closeSoundPopup").onclick = () => {
+                popup.remove();
+            };
+        }
+
     </script>
 
 </body>
