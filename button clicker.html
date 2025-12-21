@@ -13,6 +13,7 @@ thank you for reading this comment, happy viewing (or hacking)!-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta>
     <title>button clicker (beta)</title>
     <link id="mainCSS" rel="stylesheet" href="./btnclk.css">
     <style>
@@ -24,7 +25,9 @@ thank you for reading this comment, happy viewing (or hacking)!-->
 </head>
 
 <body>
+    <!-- prepare audio -->
     <audio id="clickSound" src="./clk.mp3"></audio>
+    <!-- following div is used to test if css loaded -->
     <div id="css-test-element" style="display:none;"></div>
     <div id="cssError">
         <div class="errBox">
@@ -32,18 +35,22 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             <p>The page will not load without the stylesheet. please make sure that you downloaded the css file.</p>
             <p>ERROR CODE 404: FILE_NOT_FOUND</p>
             <button id="continueBtn">atempt to check for CSS</button>
+            <button id="force">force check for css [Android only]</button>
             <button id="rld" onclick="location.reload();">reload page</button>
+            <button id="redir" onclick="window.location.href='err.html'">go to error type</button>
             <button id="dwnld">download full CSS</button>
             <p id="atmp"></p>
         </div>
     </div>
 
-    <!-- following script controlls button -->
+    <!-- following script controlls css eror screen -->
     <script>
         const continueBtn = document.getElementById("continueBtn");
         const atmpText = document.getElementById("atmp");
         const dwnldBtn = document.getElementById("dwnld");
         const style = document.getElementById("download");
+        const frcscheck = document.getElementById("force");
+        const redir = document.getElementById("redir")
         const fallbackCSS = `
     #css-test-element {
     width: 10px;
@@ -143,6 +150,22 @@ thank you for reading this comment, happy viewing (or hacking)!-->
     height: 100%;
     pointer-events: none;
 }
+#settings {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+#settingsMenu {
+    background: white;
+    margin-left: 400px;
+    padding: 20px;
+    border: 2px solid black;
+    border-radius: 10px;
+}
 `;
 
 
@@ -167,10 +190,27 @@ thank you for reading this comment, happy viewing (or hacking)!-->
                     document.getElementById("cssError").style.display = "none";
                 } else {
                     atmpText.textContent = "⚠️ CSS still failed to load. Please check your file location.";
+                    redir.style.display = "flex";
                 }
 
             }, 1000); // 1 second delay
         };
+        frcscheck.onclick = function () {
+            if (!confirm("Are you sure you want to continiue? note that this feature only works on Android")) return;
+            const link = document.getElementById("mainCSS");
+            link.href = "/storage/emulated/0/idx/btnclk.css"
+            setTimeout(() => {
+                const test = getComputedStyle(document.getElementById("css-test-element")).width;
+                if (test === "10px") {
+                    // CSS loaded successfully
+                    document.getElementById("cssError").style.display = "none";
+                } else {
+                    atmpText.textContent = "⚠️ CSS still failed to load. Please check your file location.";
+                    redir.style.display = "flex"; ƒ
+                }
+
+            }, 1000); // 1 second delay
+        }
     </script>
 
     <style>
@@ -242,6 +282,23 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             margin-top: 10px;
             padding: 10px 20px;
         }
+
+        #force {
+            margin-top: 20px;
+            padding: 10px 25px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        #redir {
+            text-align: center;
+            align-items: center;
+            display: none;
+            margin-top: 20px;
+            padding: 10px 25px;
+            font-size: 18px;
+            cursor: pointer;
+        }
     </style>
 
     <script>
@@ -255,13 +312,21 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             }
         };
     </script>
-
+    <!-- main setup -->
     <h1>button clicker (beta)</h1>
+    <button id="settings">⚙ SETTINGS</button>
+    <div class="sett" id="settingsMenu" style="display:none;">
+        <h2>Settings</h2>
+        <button id="resetBtn">RESET</button>
+        <button id="save">Save Game</button>
+        <button id="dark">Dark Mode</button>
+        <button id="err" onclick="window.location.href='err.html'">redirect to errors</button>
+        <p id="savetxt"></p>
+    </div>
     <div style="margin-bottom: 20px">
         <canvas id="particleCanvas"></canvas>
         <button id="myButton">0</button>
     </div>
-
     <div>
         <input id="myInput" type="number" value="1" min="0" pattern="[1-9]" placeholder="use to level up" />
         <button id="ok">&larr;level up that many times</button>
@@ -271,10 +336,8 @@ thank you for reading this comment, happy viewing (or hacking)!-->
     <div>
         <p id="levelDisplay">Level: 1</p>
     </div>
-    <p id="cost">cost for next level: 10</p>
-    <button id="resetBtn">RESET</button>
-    <button id="save">Save Game</button>
-    <p id="savetxt"></p>
+    <p id="cost">cost for next level: 100</p>
+    <p id="aford">yes or nope</p>
 
     <!-- Source - https://stackoverflow.com/a/3926750
     Posted by hairbo, modified by community. See post 'Timeline' for change history
@@ -291,10 +354,11 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         </div>
     </noscript>
     <!--end of source-->
+    <!--extra gui-->
     <p id="totclk">total clicks: 0</p>
-    <button id="prestigeBtn" onclick="prestige()">Prestige (Requires 10,000,000,000 (10 billion) points)</button>
-    <div id="prestigeInfo">Prestige Multiplier: x1</div>
-
+    <button id="prestigeBtn" onclick="prestige()" title="prestige is still in progress, please do not use">Prestige (Requires 10,000,000,000 (10 billion) points)</button>
+    <div id="prestigeInfo" title="prestige is still in progress, please do not use">Prestige Multiplier: x1</div>
+    <!-- upgrades -->
     <h2>UPGRADES!!!</h2>
     <p>(tip: hover your mouse pointer over a buttton for the details of the upgrade)</p>
     <button id="clicker" title="each auto-cliker clicks 1 point per second">auto-clicker (500 points per
@@ -310,6 +374,9 @@ thank you for reading this comment, happy viewing (or hacking)!-->
     <button id="reactBtn" title="each Quantum Reactor fuses 100 points per second">Quantum Reactor (25000
         points)</button>
     <p id="reactTxt">You have 0 reactors</p>
+
+    <button id="alcam" title="each alchemy lab transmutes 10000 points per second">Alchemy Lab (100000 points)</button>
+    <p id="alctxt">You have 0 alchemy labs</p>
 
     <button id="grandma"
         title="to remember her loss, each grandma bakes 1 million points per second... she shall not be forgotten">RIP
@@ -327,30 +394,34 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             box-shadow: 0 0 20px 6px rgba(180, 120, 255, 0.7);
         }
     </style>
-
-    <h3>achivements (scroll down)</h3>
+    <!-- achievements -->
+    <h2>achievements (scroll down)</h2>
     <p id="click">???</p>
     <p id="100clk">???</p>
     <p id="1000clk">???</p>
-    <p id="100000clk">???</p>
+    <p id="50000clk">???</p>
     <p id="1auto">???</p>
     <p id="10auto">???</p>
-    <p id="100auto">???</p>
+    <p id="50auto">???</p>
     <p id="1gen">???</p>
     <p id="10gen">???</p>
-    <p id="100gen">???</p>
+    <p id="50gen">???</p>
     <p id="1fac">???</p>
     <p id="10fac">???</p>
-    <p id="100fac">???</p>
+    <p id="50fac">???</p>
     <p id="1reactor">???</p>
     <p id="10reactor">???</p>
-    <p id="100reactor">???</p>
+    <p id="50reactor">???</p>
+    <p id="1alcam">???</p>
+    <p id="10alcam">???</p>
+    <p id="50alcam">???</p>
     <p id="1grandma">???</p>
     <p id="10grandma">???</p>
-    <p id="100grandma">???</p>
+    <p id="50grandma">???</p>
+    <!-- main code -->
     <script>
         // unlock sound play
-        let clickSound = new Audio("clk.mp3");
+        const clickSound = document.getElementById("clickSound");
         clickSound.volume = 0.4;
         document.body.addEventListener("mousedown", () => {
             clickSound.play().catch(() => { });
@@ -363,13 +434,11 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         const canvas = document.getElementById("particleCanvas");
         const ctx = canvas.getContext("2d");
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
         let particles = [];
 
         // load stored data
         let score = Number(localStorage.getItem("score")) || 0;
+        let cost = Number(localStorage.getItem("cost")) || 100;
         let clicks = Number(localStorage.getItem("clicks")) || 0;
         let level = parseInt(localStorage.getItem("level")) || 1;
         let auto = Number(localStorage.getItem("auto")) || 0;
@@ -383,9 +452,11 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         let reactorCost = Number(localStorage.getItem("reactorCost")) || 25000;
         let grandmas = Number(localStorage.getItem("grandmas")) || 0;
         let grandmaCost = Number(localStorage.getItem("grandmaCost")) || 10000000;
+        let alcam = Number(localStorage.getItem("alcam")) || 0;
+        let alcamCost = Number(localStorage.getItem("alcamCost")) || 100000;
         let prestigelvl = Number(localStorage.getItem("prestigeBtn")) || 0;
         let prestigeMult = Number(localStorage.getItem("prestigeInfo")) || 1;
-        let upgrades = auto + generators + factories + reactors + grandmas
+        let upgrades = (auto * 1) + (generators * 5) + (factories * 25) + (reactors * 100) + (alcam * 10000) + (grandmas * 1000000);
         let autoBoost = 0;
 
         // Prevent NaN bug from breaking game
@@ -416,7 +487,17 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         const grandmaBtn = document.getElementById("grandma");
         const grandmaTxt = document.getElementById("grandmatxt");
         const totclk = document.getElementById("totclk");
+        const settingsBtn = document.getElementById("settings");
+        const settingsMenu = document.getElementById("settingsMenu");
+        const prestigeBtn = document.getElementById("prestigeBtn");
+        const prestigeInfo = document.getElementById("prestigeInfo");
+        const afordable = document.getElementById("aford");
+        const darkModeBtn = document.getElementById("dark");
+        const alcamBtn = document.getElementById("alcam");
+        const alcamTxt = document.getElementById("alctxt");
+        button.textContent = score;
         totclk.textContent = "total clicks: " + clicks;
+        afordable.textContent = (score >= cost) ? "afordable" : "not afordable";
 
         let amount = parseInt(input.value, 10) || 1;
         costDisplay.textContent = "Cost for next level: " + (level * amount * 100);
@@ -433,6 +514,26 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         reactTxt.textContent = "You have " + reactors + " reactors";
         grandmaBtn.textContent = "RIP Grandma... (" + grandmaCost + " points)";
         grandmaTxt.textContent = "You have " + grandmas + " Grandmas";
+        alcamBtn.textContent = "Alchemy Lab (" + alcamCost + " points)";
+        alcamTxt.textContent = "You have " + alcam + " alchemy labs";
+
+        darkModeBtn.onclick = function () {
+            if (document.body.style.backgroundColor === "rgb(207, 255, 253)") {
+                document.body.style.backgroundColor = "rgb(50, 50, 50)";
+                document.body.style.color = "rgb(220, 220, 220)";
+            } else {
+                document.body.style.backgroundColor = "rgb(207, 255, 253)";
+                document.body.style.color = "rgb(0, 0, 0)";
+            }
+        };
+
+        settingsBtn.onclick = function () {
+            if (settingsMenu.style.display === "none") {
+                settingsMenu.style.display = "block";
+            } else {
+                settingsMenu.style.display = "none";
+            }
+        };
 
         grandmaBtn.onclick = function () {
             if (score >= grandmaCost) {
@@ -523,6 +624,24 @@ thank you for reading this comment, happy viewing (or hacking)!-->
 
         };
 
+        alcamBtn.onclick = function () {
+            if (score >= alcamCost) {
+                score -= alcamCost;
+                alcam++;
+                alcamCost = Math.floor(alcamCost * 1.8);
+
+                localStorage.setItem("score", score);
+                localStorage.setItem("alcam", alcam);
+                localStorage.setItem("alcamCost", alcamCost);
+
+                button.textContent = score;
+                alcamBtn.textContent = "Alchemy Lab (" + alcamCost + " points)";
+                alcamTxt.textContent = "You have " + alcam + " alchemy labs";
+
+                if (!autoActive) startAutoClicker();  // <-- now works
+            }
+        }
+
         saveBtn.onclick = function () {
             document.getElementById("savetxt").textContent = "Game Saved!";
             localStorage.setItem("score", score);
@@ -544,24 +663,37 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         };
 
         button.onclick = function () {
+            // define variables
+            let cost = level * amount * 100;
+
+            // play click sound
             clickSound.currentTime = 0;
             clickSound.play();
 
+            // change button color randomly
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            button.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            button.style.boxShadow = `0 0 20px rgb(${r}, ${g}, ${b})`;
+
+            // main click logic
             score += level * prestigeMult;
             clicks += 1;
             button.textContent = score;
             localStorage.setItem("score", score);
             localStorage.setItem("clicks", clicks);
+            // set new total clicks
             totclk.textContent = "total clicks: " + clicks;
-            spawnParticles(event.clientX, event.clientY);
-            // spawn particle at mouse position
 
-            checkAchivements();
+            // check if you can afford next level
+            afordable.textContent = (score >= cost) ? "afordable" : "not afordable";
         };
         input.oninput = function () {
             amount = parseInt(input.value, 10) || 1; // default = 1
             let cost = level * amount * 100;
             costDisplay.textContent = "Cost for next level: " + cost;
+            afordable.textContent = (score >= cost) ? "afordable" : "not afordable";
             checkAchivements();
         };
 
@@ -634,6 +766,7 @@ thank you for reading this comment, happy viewing (or hacking)!-->
                 totalGain += generators * 5;
                 totalGain += factories * 25;
                 totalGain += reactors * 100;
+                totalGain += alcam * 10000;
                 totalGain += grandmas * 1000000;
 
                 if (totalGain > 0) {
@@ -642,17 +775,6 @@ thank you for reading this comment, happy viewing (or hacking)!-->
                     localStorage.setItem("score", score);
                 }
             }, 1000);
-        }
-        function spawnParticle(x, y) {
-            for (let i = 0; i < 12; i++) {
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: (Math.random() - 0.5) * 4,
-                    life: 30
-                });
-            }
         }
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -687,8 +809,8 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             if (clicks >= 1000) {
                 document.getElementById("1000clk").textContent = "what comes after 999? 1000!!!!!!!!!!!!!!!";
             }
-            if (clicks >= 100000) {
-                document.getElementById("100000clk").textContent = "click-aholic";
+            if (clicks >= 50000) {
+                document.getElementById("50000clk").textContent = "click-aholic";
             }
             if (auto >= 1) {
                 document.getElementById("1auto").textContent = "some automating going on";
@@ -696,8 +818,8 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             if (auto >= 10) {
                 document.getElementById("10auto").textContent = "getting serious with the auto-clickers";
             }
-            if (auto >= 100) {
-                document.getElementById("100auto").textContent = "OH MY LORD";
+            if (auto >= 50) {
+                document.getElementById("50auto").textContent = "OH MY LORD";
             }
             if (generators >= 1) {
                 document.getElementById("1gen").textContent = "GENERATING TEXT... SUCSESS.";
@@ -705,8 +827,8 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             if (generators >= 10) {
                 document.getElementById("10gen").textContent = "powering up...";
             }
-            if (generators >= 100) {
-                document.getElementById("100gen").textContent = "ENERGY OVERLOAD!!!";
+            if (generators >= 50) {
+                document.getElementById("50gen").textContent = "ENERGY OVERLOAD!!!";
             }
             if (factories >= 1) {
                 document.getElementById("1fac").textContent = "factory is opperational";
@@ -714,26 +836,35 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             if (factories >= 10) {
                 document.getElementById("10fac").textContent = "huge production";
             }
-            if (factories >= 100) {
-                document.getElementById("100fac").textContent = "earth = factory now";
+            if (factories >= 50) {
+                document.getElementById("50fac").textContent = "earth = factory now";
             }
             if (reactors >= 1) {
                 document.getElementById("1reactor").textContent = "quantumized points";
             }
             if (reactors >= 10) {
-                document.getElementById("10reactor").textContent = "quantumized points x10";
+                document.getElementById("10reactor").textContent = "quantumized points (why does this make me think about cookies?)";
             }
-            if (reactors >= 100) {
-                document.getElementById("100reactor").textContent = "quantumized points OVERLOAD!!!";
+            if (reactors >= 50) {
+                document.getElementById("50reactor").textContent = "quantumized points OVERLOAD!!!";
+            }
+            if (alcam >= 1) {
+                document.getElementById("1alcam").textContent = "alchemy is real";
+            }
+            if (alcam >= 10) {
+                document.getElementById("10alcam").textContent = "ten labs, are u serious?";
+            }
+            if (alcam >= 50) {
+                document.getElementById("50alcam").textContent = "philosophic clicks?";
             }
             if (grandmas >= 1) {
                 document.getElementById("1grandma").textContent = "RIP Grandma";
             }
             if (grandmas >= 10) {
-                document.getElementById("10grandma").textContent = "Rip Grandma x10";
+                document.getElementById("10grandma").textContent = "raining cicks (thanks grandma)";
             }
-            if (grandmas >= 100) {
-                document.getElementById("100grandma").textContent = "grandma was found in heaven";
+            if (grandmas >= 50) {
+                document.getElementById("50grandma").textContent = "heavanly clicks";
             }
         };
         function giveDailyReward() {
@@ -847,19 +978,19 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             }, 2500);
         });
         function calculatePrestigeRequirement() {
-            return 10000 * (prestigeLevel + 1);
+            return 10000 * (prestigelvl + 1);
         }
 
         function prestige() {
             if (score >= calculatePrestigeRequirement()) {
 
-                prestigeLevel++;
-                prestigeMult = 1 + prestigeLevel * 0.5;  // each prestige = +50%
+                prestigelvl++;
+                prestigeMult = 1 + prestigelvl * 0.5;  // each prestige = +50%
 
                 // RESET EVERYTHING EXCEPT PRESTIGE
                 score = 0;
                 upgrades = 0;
-
+                localStorage.setItem("prestigeBtn", prestigelvl);
                 updateScore();
                 updatePrestigeUI();
             }
@@ -905,21 +1036,33 @@ thank you for reading this comment, happy viewing (or hacking)!-->
                 popup.remove();
             };
         }
-        button.addEventListener("click", () => {
-            const r = Math.floor(Math.random() * 256);
-            const g = Math.floor(Math.random() * 256);
-            const b = Math.floor(Math.random() * 256);
-
-            button.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-        });
         button.addEventListener("click", (e) => {
             const rect = button.getBoundingClientRect();
             const x = rect.left + rect.width / 2;
             const y = rect.top;
         });
         document.addEventListener("click", (e) => {
-            spawnParticle(e.clientX, e.clientY);
+            spawnParticles(e.clientX, e.clientY);
         });
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = window.innerWidth * dpr;
+            canvas.height = window.innerHeight * dpr;
+
+            canvas.style.width = window.innerWidth + "px";
+            canvas.style.height = window.innerHeight + "px";
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+        //check if cavas initialized
+
+        if (!canvas || !ctx) {
+            console.error("Canvas not initialized");
+        }
     </script>
 
 </body>
