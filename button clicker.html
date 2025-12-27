@@ -14,8 +14,9 @@ thank you for reading this comment, happy viewing (or hacking)!-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta>
-    <title>button clicker (beta)</title>
+    <title>button clicker</title>
     <link id="mainCSS" rel="stylesheet" href="./btnclk.css">
+    <link rel="icon" href="./gameLG.png">
     <style>
         body {
             background-color: rgb(207, 255, 253);
@@ -206,7 +207,7 @@ thank you for reading this comment, happy viewing (or hacking)!-->
                     document.getElementById("cssError").style.display = "none";
                 } else {
                     atmpText.textContent = "⚠️ CSS still failed to load. Please check your file location.";
-                    redir.style.display = "flex"; ƒ
+                    redir.style.display = "flex";
                 }
 
             }, 1000); // 1 second delay
@@ -313,15 +314,50 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         };
     </script>
     <!-- main setup -->
-    <h1>button clicker (beta)</h1>
+    <h1>button clicker</h1>
+    <button id="bonusBtn" style="display:none"></button>
     <button id="settings">⚙ SETTINGS</button>
-    <div class="sett" id="settingsMenu" style="display:none;">
+    <button id="vers">Version log</button>
+    <div id="settingsMenu" style="display:none;">
         <h2>Settings</h2>
         <button id="resetBtn">RESET</button>
         <button id="save">Save Game</button>
         <button id="dark">Dark Mode</button>
         <button id="err" onclick="window.location.href='err.html'">redirect to errors</button>
+        <button id="cloudSave">export save</button>
+        <button id="loadSave">load save</button>
+        <input style="display:none" id="inputLoadSave" type="text" placeholder="enter save code:" />
+        <button style="display:none" id="enterSave">load</button>
         <p id="savetxt"></p>
+    </div>
+    <div id="versdiv" style="display:none">
+        <h2>VERSION LOG</h2>
+        <!-- date of release was provided by the GitHub branching system -->
+        <h3>ALPHA VERSIONS</h3>
+        <p>v0.1 - initial release, introduced main click logic, input logic, and level logic. date of release: November
+            23, 2025 at 1:23 PM</p>
+        <p>v0.2 - introduced storage to the game, can now save and reset and hold data in device. date of release:
+            November 26, 2025 at 6:31 PM</p>
+        <p>v0.2.1 - removed autosave. date of release: November 28, 2025 at 3:41 PM</p>
+        <p>v0.2.2 - made a script support error. date of release: November 29, 2025 at 7:27 PM</p>
+        <h3>BETA versions</h3>
+        <p>v1.2.2 - brought back autosave, made achievements, upgrades, and daily rewards. date of release: November 30,
+            2025 at
+            7:34 PM</p>
+        <p>v1.3.2 - created an external CSS file, including an error that warns you incase it wasn't found, and
+            SMOO~~~TH
+            transitions. date of release: December 3, 2025 at 12:58 PM</p>
+        <p>v1.4.2 - supports mobile now, not entirely, but mostly. date of release: December 3, 2025 at 5:26 PM</p>
+        <p>v1.5.2 - tweaked the game and it's CSS file, and installed sound. date of release: December 3, 2025 at 9:27
+            PM</p>
+        <p>v1.5.3 - made another error screen that warns you if it can't find the sound file. date of release: December
+            5, 2025 at 9:59 PM</p>
+        <p>v1.6.3 - made particles. date of release: December 7, 2025 at 6:08 PM</p>
+        <p>v1.9.3 - made a website that tells about all the errors in button clicker, more
+            animatins, settings and dark mode! date of release: December 21, 2025 at 12:31 PM</p>
+        <h3>FINISHED versions</h3>
+        <p>*this is the current version* v2.0 - made a version log option, prestige officially works (still bugy), made two more
+            files and a bonus button. date of release: December 26, 2025 at 9:17 PM</p>
     </div>
     <div style="margin-bottom: 20px">
         <canvas id="particleCanvas"></canvas>
@@ -356,7 +392,8 @@ thank you for reading this comment, happy viewing (or hacking)!-->
     <!--end of source-->
     <!--extra gui-->
     <p id="totclk">total clicks: 0</p>
-    <button id="prestigeBtn" onclick="prestige()" title="prestige is still in progress, please do not use">Prestige (Requires 10,000,000,000 (10 billion) points)</button>
+    <button id="prestigeBtn" onclick="prestige()" title="prestige is still in progress, please do not use">Prestige
+        (Requires 10,000,000,000 (10 billion) points)</button>
     <div id="prestigeInfo" title="prestige is still in progress, please do not use">Prestige Multiplier: x1</div>
     <!-- upgrades -->
     <h2>UPGRADES!!!</h2>
@@ -382,6 +419,11 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         title="to remember her loss, each grandma bakes 1 million points per second... she shall not be forgotten">RIP
         Grandma... (10 million points)</button>
     <p id="grandmatxt">You have 0 Grandmas</p>
+
+    <h2>feature</h2>
+
+    <button id="bonusclk">click the bonus button (5000000 points (5 million))</button>
+    <p id="bnsclkTXT">buying this feature will click all the bonus buttons so you don't miss anything!</p>
 
     <style>
         #grandma {
@@ -455,7 +497,11 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         let alcam = Number(localStorage.getItem("alcam")) || 0;
         let alcamCost = Number(localStorage.getItem("alcamCost")) || 100000;
         let prestigelvl = Number(localStorage.getItem("prestigeBtn")) || 0;
-        let prestigeMult = Number(localStorage.getItem("prestigeInfo")) || 1;
+        let prestigeMult = Number(localStorage.getItem("prestigeInfo")) || 1.0;
+        let bonusfeat = Number(localStorage.getItem("bonusBtn")) || 0;
+        let bonusBtnShown = Number(localStorage.getItem("bonusBtnShown")) || 0;
+
+
         let upgrades = (auto * 1) + (generators * 5) + (factories * 25) + (reactors * 100) + (alcam * 10000) + (grandmas * 1000000);
         let autoBoost = 0;
 
@@ -468,6 +514,12 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         if (isNaN(reactors)) reactors = 0;
         if (isNaN(grandmas)) grandmas = 0;
 
+        autoCost.textContent = 500;
+        generatorCost.textContent = 1000;
+        factoryCost.textContent = 5000;
+        reactorCost.textContent = 25000;
+        grandmaCost.textContent = 10000000;
+        alcamCost.textContent = 100000;
 
         const button = document.getElementById("myButton");
         const levelBtn = document.getElementById("ok");
@@ -495,10 +547,21 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         const darkModeBtn = document.getElementById("dark");
         const alcamBtn = document.getElementById("alcam");
         const alcamTxt = document.getElementById("alctxt");
-        button.textContent = score;
-        totclk.textContent = "total clicks: " + clicks;
-        afordable.textContent = (score >= cost) ? "afordable" : "not afordable";
-
+        const versBtn = document.getElementById("vers");
+        const versDiv = document.getElementById("versdiv");
+        const bonusclkBtn = document.getElementById("bonusclk");
+        const bnsclkTXT = document.getElementById("bnsclkTXT");
+        const cloudSaveBtn = document.getElementById("cloudSave");
+        const loadSaveBtn = document.getElementById("loadSave");
+        const inputLoadSave = document.getElementById("inputLoadSave");
+        const enterSaveBtn = document.getElementById("enterSave");
+        const savetxt = document.getElementById("savetxt");
+        autoCost.textContent = 500 * Math.pow(1.15, auto);
+        generatorCost.textContent = 1000 * Math.pow(1.15, generators);
+        factoryCost.textContent = 5000 * Math.pow(1.15, factories);
+        reactorCost.textContent = 25000 * Math.pow(1.15, reactors);
+        grandmaCost.textContent = 10000000 * Math.pow(1.15, grandmas);
+        alcamCost.textContent = 100000 * Math.pow(1.15, alcam);
         let amount = parseInt(input.value, 10) || 1;
         costDisplay.textContent = "Cost for next level: " + (level * amount * 100);
         button.textContent = score;
@@ -515,7 +578,164 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         grandmaBtn.textContent = "RIP Grandma... (" + grandmaCost + " points)";
         grandmaTxt.textContent = "You have " + grandmas + " Grandmas";
         alcamBtn.textContent = "Alchemy Lab (" + alcamCost + " points)";
-        alcamTxt.textContent = "You have " + alcam + " alchemy labs";
+        alcamTxt.textContent = "You have " + alcam + " alchey labs";
+        prestigeInfo.textContent = "Prestige Multiplier: x" + prestigeMult.toFixed(1);
+
+        if (bonusBtnShown === 0) {
+            bonusclkBtn.style.display = "none";
+            bnsclkTXT.textContent = "you now own this feature, go and relax.";
+
+        }
+        else {
+            bonusclkBtn.style.display = "flex";
+            bnsclkTXT.textContent = "buying this feature will click all the bonus buttons so you don't miss anything!";
+        };
+
+        // bonus point controller
+        const bonusBtn = document.getElementById("bonusBtn");
+
+        bonusclkBtn.onclick = function () {
+            if (score >= 5000000) {
+                score -= 5000000;
+                bonusfeat = 1;
+
+                localStorage.setItem("score", score);
+                localStorage.setItem("bonusBtn", bonusfeat);
+
+                button.textContent = score;
+                bonusclkBtn.style.display = "none";
+                bnsclkTXT.textContent = "you now own this feature, go and relax.";
+                checkAchivements();
+            }
+        };
+
+        // main game logic
+
+        cloudSaveBtn.onclick = function () {
+            let saveData = {
+                score: score,
+                cost: cost,
+                clicks: clicks,
+                level: level,
+                auto: auto,
+                autoCost: autoCost,
+                generators: generators,
+                generatorCost: generatorCost,
+                factories: factories,
+                factoryCost: factoryCost,
+                reactors: reactors,
+                reactorCost: reactorCost,
+                grandmas: grandmas,
+                grandmaCost: grandmaCost,
+                alcam: alcam,
+                alcamCost: alcamCost,
+                prestigelvl: prestigelvl,
+                prestigeMult: prestigeMult,
+                bonusfeat: bonusfeat
+            };
+            let saveString = btoa(JSON.stringify(saveData));
+            prompt("Copy your save code:", saveString, "please place this code somewhere safe");
+        };
+
+        loadSaveBtn.onclick = function () {
+            inputLoadSave.style.display = "inline";
+            enterSaveBtn.style.display = "inline";
+        };
+
+        enterSaveBtn.onclick = function () {
+            let saveString = inputLoadSave.value;
+            try {
+                let saveData = JSON.parse(atob(saveString));
+                score = saveData.score || 0;
+                cost = saveData.cost || 100;
+                clicks = saveData.clicks || 0;
+                level = saveData.level || 1;
+                auto = saveData.auto || 0;
+                autoCost = saveData.autoCost || 500;
+                generators = saveData.generators || 0;
+                generatorCost = saveData.generatorCost || 1000;
+                factories = saveData.factories || 0;
+                factoryCost = saveData.factoryCost || 5000;
+                reactors = saveData.reactors || 0;
+                reactorCost = saveData.reactorCost || 25000;
+                grandmas = saveData.grandmas || 0;
+                grandmaCost = saveData.grandmaCost || 10000000;
+                alcam = saveData.alcam || 0;
+                alcamCost = saveData.alcamCost || 100000;
+                prestigelvl = saveData.prestigelvl || 0;
+                prestigeMult = saveData.prestigeMult || 1.0;
+                bonusfeat = saveData.bonusfeat || 0;
+
+                localStorage.setItem("score", score);
+                localStorage.setItem("cost", cost);
+                localStorage.setItem("clicks", clicks);
+                localStorage.setItem("level", level);
+                localStorage.setItem("auto", auto);
+                localStorage.setItem("autoCost", autoCost);
+                localStorage.setItem("generators", generators);
+                localStorage.setItem("generatorCost", generatorCost);
+                localStorage.setItem("factories", factories);
+                localStorage.setItem("factoryCost", factoryCost);
+                localStorage.setItem("reactors", reactors);
+                localStorage.setItem("reactorCost", reactorCost);
+                localStorage.setItem("grandmas", grandmas);
+                localStorage.setItem("grandmaCost", grandmaCost);
+                localStorage.setItem("alcam", alcam);
+                localStorage.setItem("alcamCost", alcamCost);
+                localStorage.setItem("prestigeBtn", prestigelvl);
+                localStorage.setItem("prestigeInfo", prestigeMult);
+                localStorage.setItem("bonusBtn", bonusfeat);
+
+                location.reload();
+            } catch (e) {
+                alert("Invalid save code!");
+            }
+        };
+
+        button.textContent = score;
+        totclk.textContent = "total clicks: " + clicks;
+        afordable.textContent = (score >= cost) ? "afordable" : "not afordable";
+
+        prestigeBtn.onclick = function () {
+
+            if (!confirm("acending now will reset all your progress, we strongly recomend you export your current save file before acending. to do so, please go to settings and click export save.")) return;
+            if (!confirm("WOAH! are you sure you want to acend? this action is irreversible unless you have exported your save. Don't say I didn't warn you!")) return;
+            if (score >= 10000000000) {
+                score = 0;
+                level = 1;
+                clicks = 0;
+                auto = 0;
+                generators = 0;
+                factories = 0;
+                reactors = 0;
+                grandmas = 0;
+                alcam = 0;
+                prestigeMult *= 1.5;
+                prestigelvl += 1;
+                localStorage.setItem("score", score);
+                localStorage.setItem("level", level);
+                localStorage.setItem("clicks", clicks);
+                localStorage.setItem("prestigeBtn", prestigelvl);
+                localStorage.setItem("prestigeInfo", prestigeMult);
+                localStorage.setItem("auto", auto)
+                localStorage.setItem("generators", generators)
+                localStorage.setItem("factories", factories)
+                localStorage.setItem("reactors", reactors)
+                localStorage.setItem("grandmas", grandmas)
+                localStorage.setItem("alcam", alcam)
+
+
+                button.textContent = score;
+                display.textContent = "Level: " + level;
+                prestigeInfo.textContent = "Prestige Multiplier: x" + prestigeMult;
+                costDisplay.textContent = "Cost for next level: " + (level * 100);
+                totclk.textContent = "total clicks: " + clicks;
+                checkAchivements();
+            }
+        }
+
+
+
 
         darkModeBtn.onclick = function () {
             if (document.body.style.backgroundColor === "rgb(207, 255, 253)") {
@@ -532,6 +752,14 @@ thank you for reading this comment, happy viewing (or hacking)!-->
                 settingsMenu.style.display = "block";
             } else {
                 settingsMenu.style.display = "none";
+            }
+        };
+
+        versBtn.onclick = function () {
+            if (versDiv.style.display === "none") {
+                versDiv.style.display = "block";
+            } else {
+                versDiv.style.display = "none";
             }
         };
 
@@ -688,6 +916,15 @@ thank you for reading this comment, happy viewing (or hacking)!-->
 
             // check if you can afford next level
             afordable.textContent = (score >= cost) ? "afordable" : "not afordable";
+
+            // warn player if they points aproaching infinity
+            if (score > 1e+150) {
+                alert("Warning: you points are aproaching infinity! me strongly recomend you prestige soon!");
+            }
+            // warn players if they reach infinity
+            if (isFinite(score) === false) {
+                alert("ERROR: your points have reached infinity and can no longer be represented correctly. please prestige to continiue normall gameplay.");
+            }
         };
         input.oninput = function () {
             amount = parseInt(input.value, 10) || 1; // default = 1
@@ -733,8 +970,33 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             grandmas = 0;
             grandmaCost = 10000000;
             clicks = 0;
+            alcam = 0;
+            alcamCost = 100000;
+            prestigelvl = 0;
+            prestigeMult = 1.0;
+            bonusfeat = 0;
+            autoCost = 500;
+            generatorCost = 1000;
+            factoryCost = 5000;
+            reactorCost = 25000;
+            grandmaCost = 10000000;
+            alcamCost = 100000;
 
             localStorage.clear();
+            localStorage.setItem("score", score);
+            localStorage.setItem("level", level);
+            localStorage.setItem("auto", auto);
+            localStorage.setItem("autoCost", autoCost);
+            localStorage.setItem("generators", generators);
+            localStorage.setItem("generatorCost", generatorCost);
+            localStorage.setItem("factories", factories);
+            localStorage.setItem("factoryCost", factoryCost);
+            localStorage.setItem("reactors", reactors);
+            localStorage.setItem("reactorCost", reactorCost);
+            localStorage.setItem("grandmas", grandmas);
+            localStorage.setItem("grandmaCost", grandmaCost);
+            localStorage.setItem("alcam", alcam);
+            localStorage.setItem("alcamCost", alcamCost);
 
             button.textContent = score;
             display.textContent = "Level: " + level;
@@ -752,6 +1014,7 @@ thank you for reading this comment, happy viewing (or hacking)!-->
             reactTxt.textContent = "You have " + reactors + " reactors";
             grandmaBtn.textContent = "RIP Grandma... (" + grandmaCost + " points)";
             grandmaTxt.textContent = "You have " + grandmas + " Grandmas";
+
 
 
         };
@@ -982,18 +1245,6 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         }
 
         function prestige() {
-            if (score >= calculatePrestigeRequirement()) {
-
-                prestigelvl++;
-                prestigeMult = 1 + prestigelvl * 0.5;  // each prestige = +50%
-
-                // RESET EVERYTHING EXCEPT PRESTIGE
-                score = 0;
-                upgrades = 0;
-                localStorage.setItem("prestigeBtn", prestigelvl);
-                updateScore();
-                updatePrestigeUI();
-            }
         }
 
         function updatePrestigeUI() {
@@ -1063,6 +1314,55 @@ thank you for reading this comment, happy viewing (or hacking)!-->
         if (!canvas || !ctx) {
             console.error("Canvas not initialized");
         }
+
+        function BonusButtonOverTime() {
+            setTimeout(() => {
+                bonusBtn.style.display = "none";
+                spawnBonusButton();
+                //make function stop if button was clicked
+                if (bonusBtn.style.display === "none") {
+                    return;
+                }
+            }, 20000);
+        }
+
+        function spawnBonusButton() {
+            setTimeout(() => {
+                bonusBtn.style.display = "block";
+                const plus = Math.floor(Math.random() * Math.max(1, score) * 2) + 100;
+                bonusBtn.textContent = "+" + plus + "!";
+                const x = Math.random() * (window.innerWidth - bonusBtn.offsetWidth);
+                const y = Math.random() * (window.innerHeight - bonusBtn.offsetHeight);
+                const w = Math.random() * 200 + 50;
+                const l = Math.random() * 100 + 20;
+                bonusBtn.style.position = "absolute";
+                bonusBtn.style.left = `${x}px`;
+                bonusBtn.style.top = `${y}px`;
+                bonusBtn.style.width = `${w}px`;
+                bonusBtn.style.height = `${l}px`;
+                bonusBtn.style.boxShadow = `0 0 20px rgb(0, 215, 0)`;
+                BonusButtonOverTime();
+
+                // If player purchased the bonus feature, award immediately; otherwise set onclick
+                setTimeout(() => {
+                    if (bonusfeat === 1) {
+                        bonusBtn.style.display = "none";
+                        score += plus;
+                        button.textContent = score;
+                    } else {
+                        bonusBtn.onclick = function () {
+                            bonusBtn.style.display = "none";
+                            score += plus;
+                            button.textContent = score;
+                            spawnBonusButton();
+                        };
+                    }
+                }, 1000);
+            }, 100000);
+        }
+
+        spawnBonusButton();
+
     </script>
 
 </body>

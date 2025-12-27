@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./logo.png" />
+    <!-- make the font sans-serif -->
+    <meta name="font-family" content="sans-serif">
+
+    <title>storafy</title>
+    <style>
+        body {
+            background-color: rgb(0, 0, 150);
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <img src="./logo.png" alt="storafy logo" style="display: block; width: 150px; height: 150px; color: white;">
+    <!-- <h1 style="color: white;">storafy</h1> -->
+    <h4 style="color: white;">easy, fast, secure. now thats storage</h4>
+    <button id="newSave">create new save</button>
+    <button id="dlt">delete save</button>
+    <button id="deltCnt">delete content</button>
+    <button id="cnt">add a content</button>
+    <button id="fav">pin a save file</button>
+    <p id="dltON?" style="color: white;"></p>
+    <script>
+        loop();
+        let y = 0;
+        // create save on click
+        const button = document.getElementById("newSave");
+        const dltButton = document.getElementById("dlt");
+        const dltON = document.getElementById("dltON?");
+        const cntButton = document.getElementById("cnt");
+        const deltCntButton = document.getElementById("deltCnt");
+        const favButton = document.getElementById("fav");
+        let favMode = false;
+        let cntMode = false
+        let deleteMode = false;
+
+        favButton.onclick = () => {
+            favMode = !favMode;
+            if (favMode) {
+                favButton.style.backgroundColor = "gold"
+            } else {
+                favButton.style.backgroundColor = ""
+            }
+        };
+
+
+        dltButton.onclick = () => {
+            deleteMode = !deleteMode;
+            if (deleteMode) {
+                dltON.textContent = "Delete mode: ON (click a save to delete it)";
+                deleteMode = 1
+                dltButton.style.backgroundColor = "red"
+            } else {
+                dltON.textContent = "Delete mode: OFF";
+                deleteMode = 0
+                dltButton.style.backgroundColor = ""
+            }
+        };
+        cntButton.onclick = () => {
+            cntMode = !cntMode;
+            if (cntMode) {
+                cntButton.style.backgroundColor = "green"
+            } else {
+                cntButton.style.backgroundColor = ""
+            }
+        };
+        deltCntButton.onclick = () => {
+            let saveName = prompt("Enter save name to clear content:");
+            if (localStorage.getItem(saveName) !== null) {
+                localStorage.setItem(saveName, " ");
+                alert("Content cleared for " + saveName);
+            } else {
+                alert("Save not found!");
+            }
+        };
+        button.onclick = () => {
+            y += 60;
+            let saveName = prompt("Enter save name:");
+            const file = document.createElement("div");
+            file.textContent = saveName;
+            file.style.textAlign = "center";
+            file.style.width = "200px";
+            file.style.height = "50px";
+            file.style.backgroundColor = "lightblue";
+            file.style.position = "absolute";
+            file.style.marginTop = y + "px";
+            document.body.appendChild(file);
+            localStorage.setItem(saveName, " ");
+            window.location.reload();
+        };
+        //load all saves that have been created in this project
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i);
+            const file = document.createElement("div");
+            file.textContent = key;
+            file.style.textAlign = "center";
+            file.style.width = "200px";
+            file.style.height = "50px";
+            file.style.backgroundColor = "lightblue";
+            file.style.position = "absolute";
+            y += 60;
+            file.style.marginTop = y + "px";
+            document.body.appendChild(file);
+            file.onclick = () => {
+                if (deleteMode === 1) {
+                    // delete this save
+                    localStorage.removeItem(key);
+                    file.remove();
+                    p.remove();
+                    return;
+                }
+                else if (cntMode) {
+                    let content = prompt("Enter content to add to " + key + ":");
+                    let currentContent = localStorage.getItem(key);
+                    localStorage.setItem(key, currentContent + " " + content);
+                    p.remove();
+                }
+                else if (favMode) {
+                    localStorage.setItem("favSave", key);
+                    file.style.backgroundColor = "gold";
+                    file.style.position = "fixed";
+                    file.style.marginLeft = "200px";
+                    file.style.marginTop = "0px";
+                }
+                else {
+                    // show contents of this file
+                    let p = document.createElement("p");
+                    p.style.display = "none";
+                    p.textContent = "Contents of " + key + ": " + localStorage.getItem(key);
+                    p.style.color = "white";
+                    p.style.position = "absolute";
+                    document.body.appendChild(p);
+                    p.title = "click twice to close";
+                    if (p.style.display === "block") {
+                        p.style.display = "none";
+                        p.remove();
+                    } else {
+                        p.style.display = "block";
+                    }
+                    p.onclick = () => {
+                        p.onclick = () => {
+                            p.remove();
+                        };
+                    };
+                }
+            };
+        }
+        // continuously check for changes in local storage
+        function loop() {
+            setInterval(() => {
+                // check if local storage has changed
+                if (localStorage.length === document.querySelectorAll("div").length - 1) {
+                    for (let i = 0; i < document.querySelectorAll("div").length - 1; i++) {
+                        document.querySelectorAll("div")[i + 1].remove();
+                    }
+                    y = 0;
+                    for (let i = 0; i < localStorage.length; i++) {
+                        let key = localStorage.key(i);
+                        const file = document.createElement("div");
+                        file.textContent = key;
+                        file.style.textAlign = "center";
+                        file.style.width = "200px";
+                        file.style.height = "50px";
+                        file.style.backgroundColor = "lightblue";
+                        file.style.position = "absolute";
+                        y += 60;
+                        file.style.marginTop = y + "px";
+                        document.body.appendChild(file);
+                    }
+                };
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
